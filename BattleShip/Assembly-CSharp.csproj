@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\Controllers\TurnController.cs" />
     <Compile Include="Assets\Scripts\View\BoardUI.cs" />
     <Compile Include="Assets\Scripts\Enums\CellState.cs" />
+    <Compile Include="Assets\Scripts\Controllers\GameOverController.cs" />
     <Compile Include="Assets\Scripts\Enums\ShotResult.cs" />
     <Compile Include="Assets\Scripts\View\UIManager.cs" />
     <Compile Include="Assets\Scripts\MainMenuController.cs" />
