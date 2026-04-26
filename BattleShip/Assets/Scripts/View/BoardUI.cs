@@ -5,12 +5,11 @@ public class BoardUI : MonoBehaviour
     [Header("Налаштування генерації")]
     [SerializeField] private GameObject cellPrefab;
     [SerializeField] private Transform gridContainer;
-    [SerializeField] private bool isEnemyBoard; // Галочка в Інспекторі: чи це поле ворога?
+    [SerializeField] private bool isEnemyBoard;
 
-    // Зберігаємо посилання на згенеровані клітинки для швидкого доступу
+    // посилання на згенеровані клітинки для швидкого доступу
     private CellUI[,] visualCells = new CellUI[10, 10];
 
-    // Змінили Start на Awake, щоб сітка генерувалася ДО того, як GameManager почне її оновлювати
     private void Awake()
     {
         GenerateBoard();

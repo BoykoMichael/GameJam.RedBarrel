@@ -8,7 +8,6 @@ public class GameOverController : MonoBehaviour
 
     private void Start()
     {
-        // Визначаємо, який текст показати, виходячи з результату в GameManager
         if (GameManager.IsPlayerWinner)
         {
             resultText.text = "ПЕРЕМОГА!";
@@ -27,9 +26,9 @@ public class GameOverController : MonoBehaviour
         SceneManager.LoadScene("GameplayScene");
     }
 
-    // При натисканні "Головне меню" повертаємося на початкову сцену
-    public void GoToMainMenu()
+    public void QuitApplication()
     {
-        SceneManager.LoadScene("MainMenu");
+        Debug.Log("Гра закривається...");
+        Application.Quit(); // Працює у зібраній грі (.exe / .apk)
     }
 }

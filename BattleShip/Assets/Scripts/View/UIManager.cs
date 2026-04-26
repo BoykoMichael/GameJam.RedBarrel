@@ -1,6 +1,7 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class UIManager : MonoBehaviour
     // Метод для показу тимчасового повідомлення
     public void ShowMessage(string message, Color color)
     {
-        StopAllCoroutines(); // Зупиняємо попередні повідомлення, якщо вони ще тривають
+        StopAllCoroutines(); // зупинити попередні повідомлення, якщо вони ще тривають
         StartCoroutine(ShowMessageRoutine(message, color));
     }
 
@@ -27,11 +28,14 @@ public class UIManager : MonoBehaviour
     {
         statusText.text = message;
         statusText.color = color;
-
-        // Чекаємо 1.5 секунди
         yield return new WaitForSeconds(1.5f);
-
-        // Очищуємо текст
         statusText.text = "";
+    }
+
+    public void GoToMainMenu()
+    {
+        // Обов'язково зупиняємо всі процеси (наприклад, хід бота) перед виходом
+        StopAllCoroutines();
+        SceneManager.LoadScene("MainMenu");
     }
 }
