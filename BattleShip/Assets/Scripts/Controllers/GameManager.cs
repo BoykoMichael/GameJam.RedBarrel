@@ -24,20 +24,11 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // 1. Ініціалізуємо математичну модель поля
         EnemyBoard = new Board();
 
-        // 2. ДЛЯ ТЕСТУ: Розміщуємо один крейсер (3 клітинки) по горизонталі 
-        // Починаємо з координат X=1, Y=1 (це клітинка B2)
-        List<Coordinate> testShipCells = new List<Coordinate>
-        {
-            new Coordinate(1, 1), // B2
-            new Coordinate(2, 1), // C2
-            new Coordinate(3, 1)  // D2
-        };
+        EnemyBoard.PlaceAllShipsRandomly();
 
-        EnemyBoard.PlaceShip(ShipType.Cruiser, testShipCells);
-        Debug.Log("Тестовий корабель розміщено на координатах: B2, C2, D2");
+        Debug.Log("Ворожий флот успішно згенеровано! Починайте стріляти.");
     }
 
     // Метод, який викликається, коли гравець клікає по візуальній клітинці

@@ -145,4 +145,68 @@ public class Board
         }
         return true;
     }
+
+    // Метод для випадкової розстановки всіх кораблів за правилами
+    public void PlaceAllShipsRandomly()
+    {
+        // Стандартний флот: 1 лінкор(4), 2 крейсери(3), 3 есмінці(2), 4 катери(1)
+        List<ShipType> fleet = new List<ShipType>
+        {
+            ShipType.Battleship,
+            ShipType.Cruiser, ShipType.Cruiser,
+            ShipType.Destroyer, ShipType.Destroyer, ShipType.Destroyer,
+            ShipType.Boat, ShipType.Boat, ShipType.Boat, ShipType.Boat
+        };
+
+        // Генератор випадкових чисел Unity
+        System.Random random = new System.Random();
+
+        foreach (var shipType in fleet)
+        {
+            bool placed = false;
+            int attempts = 0;
+            int maxAttempts = 100; // Запобіжник від нескінченного циклу, якщо поле переповнене
+
+            int shipLength = (int)shipType;
+
+            while (!placed && attempts < maxAttempts)
+            {
+                // Випадкова стартова точка
+                int startX = random.Next(0, SIZE);
+                int startY = random.Next(0, SIZE);
+
+                // Випадковий напрямок: 0 - горизонтально, 1 - вертикально
+                bool isHorizontal = random.Next(0, 2) == 0;
+
+                List<Coordinate> proposedCells = new List<Coordinate>();
+
+                // Формуємо список клітинок для перевірки
+                for (int i = 0; i < shipLength; i++)
+                {
+                    if (isHorizontal)
+                    {
+                        proposedCells.Add(new Coordinate(startX + i, startY));
+                    }
+                    else
+                    {
+                        proposedCells.Add(new Coordinate(startX, startY + i));
+                    }
+                }
+
+                // Перевіряємо, чи можна поставити корабель на ці координати
+                if (CanPlaceShip(proposedCells))
+                {
+                    PlaceShip(shipType, proposedCells);
+                    placed = true;
+                }
+
+                attempts++;
+            }
+
+            if (!placed)
+            {
+                Debug.LogWarning($"Не вдалося розмістити корабель {shipType} після {maxAttempts} спроб.");
+            }
+        }
+    }
 }
