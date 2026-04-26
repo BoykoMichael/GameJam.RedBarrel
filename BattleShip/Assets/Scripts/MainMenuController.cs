@@ -5,7 +5,7 @@ public class MainMenuController : MonoBehaviour
 {
     public void PlayPressed()
     {
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("GameplayScene");
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
