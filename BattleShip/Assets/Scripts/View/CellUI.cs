@@ -1,16 +1,48 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CellUI : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public int X { get; private set; }
+    public int Y { get; private set; }
+
+    private Button button;
+    private Image image;
+
+    // Метод ініціалізації клітинки після її створення
+    public void Initialize(int x, int y)
     {
-        
+        X = x;
+        Y = y;
+
+        button = GetComponent<Button>();
+        image = GetComponent<Image>();
+
+        // Додаємо слухача події натискання на кнопку
+        button.onClick.AddListener(OnCellClicked);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnCellClicked()
     {
-        
+        Debug.Log($"Натиснуто клітинку з координатами: X={X}, Y={Y}");
+        // Пізніше тут ми будемо передавати ці координати у TurnController
+    }
+
+    // Метод для візуального оновлення клітинки
+    public void UpdateVisuals(CellState state)
+    {
+        switch (state)
+        {
+            case CellState.Empty:
+            case CellState.Occupied:
+                image.color = Color.white; // Поки не стріляли, кораблі приховуємо (або показуємо для свого поля)
+                break;
+            case CellState.Miss:
+                image.color = Color.gray; // Стріляли у воду
+                break;
+            case CellState.Hit:
+                image.color = Color.red; // Влучили у корабель
+                break;
+        }
     }
 }
