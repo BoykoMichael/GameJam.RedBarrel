@@ -4,5 +4,6 @@ public enum ShotResult
 {
     Miss,     // Промах
     Hit,      // Попав
-    Destroyed // Потопив
+    Destroyed, // Потопив
+    Sunk
 }
