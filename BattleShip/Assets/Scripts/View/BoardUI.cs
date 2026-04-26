@@ -3,18 +3,18 @@ using UnityEngine;
 public class BoardUI : MonoBehaviour
 {
     [Header("Налаштування генерації")]
-    [SerializeField] private GameObject cellPrefab;    // Посилання на префаб клітинки
-    [SerializeField] private Transform gridContainer;  // Посилання на панель PlayerBoardUI
+    [SerializeField] public GameObject cellPrefab;    // Посилання на префаб клітинки
+    [SerializeField] public Transform gridContainer;  // Посилання на панель PlayerBoardUI
 
     // Двовимірний масив для швидкого доступу до візуальних клітинок
-    private CellUI[,] visualCells = new CellUI[10, 10];
+    public CellUI[,] visualCells = new CellUI[10, 10];
 
-    private void Start()
+    public void Start()
     {
         GenerateBoard();
     }
 
-    private void GenerateBoard()
+    public void GenerateBoard()
     {
         // Проходимо циклами для створення сітки 10х10
         // Увага: y=0 - це верхній рядок у UI, тому генеруємо зверху вниз
