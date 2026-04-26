@@ -13,7 +13,6 @@ public class UIManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Початковий текст порожній
         statusText.text = "";
     }
 

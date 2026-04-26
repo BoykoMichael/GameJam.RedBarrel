@@ -92,42 +92,67 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator EnemyTurnRoutine()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.5f);
+        bool canShootAgain = true;
 
-        bool validShot = false;
-        System.Random random = new System.Random();
-
-        while (!validShot && CurrentState == GameState.EnemyTurn)
+        while (canShootAgain && CurrentState == GameState.EnemyTurn)
         {
-            int x = random.Next(0, 10);
-            int y = random.Next(0, 10);
+            int x = Random.Range(0, 10);
+            int y = Random.Range(0, 10);
 
-            CellState targetCell = PlayerBoard.Grid[x, y];
-            if (targetCell == CellState.Empty || targetCell == CellState.Occupied)
+            // перевірка чи вже стріляли в цю клітинку
+            CellState targetState = PlayerBoard.Grid[x, y];
+            if (targetState == CellState.Miss || targetState == CellState.Hit)
             {
-                validShot = true;
-                Coordinate target = new Coordinate(x, y);
+                // Якщо випадково обрали вже обстріляну клітинку — пропускаємо ітерацію і шукаємо нову
+                continue;
+            }
 
-                ShotResult result = PlayerBoard.ReceiveShot(target);
-                Debug.Log($"Ворог стріляє по координатах X={x}, Y={y}");
+            // Робимо постріл
+            Coordinate target = new Coordinate(x, y);
+            ShotResult result = PlayerBoard.ReceiveShot(target);
 
-                // Оновлюємо візуал поля гравця через пряме посилання
+            Debug.Log($"Ворог вистрілив у {x}:{y}. Результат: {result}");
+
+            // Оновлюємо візуал (ОБОВ'ЯЗКОВО перевірте, чи підключено playerBoardUI в інспекторі!)
+            if (playerBoardUI != null)
+            {
                 playerBoardUI.UpdateCellVisual(x, y, PlayerBoard.Grid[x, y]);
+            }
 
+            // Повідомлення через UIManager (з безпечною перевіркою на null)
+            if (UIManager.Instance != null)
+            {
                 if (result == ShotResult.Miss)
-                {
                     UIManager.Instance.ShowMessage("Ворог промахнувся!", Color.white);
-                    CurrentState = GameState.PlayerTurn;
-                    Debug.Log("Ворог промахнувся. Ваш хід!");
+                else if (result == ShotResult.Hit)
+                    UIManager.Instance.ShowMessage("Ворог влучив!", Color.red);
+                else
+                    UIManager.Instance.ShowMessage("Ворог потопив ваш корабель!", Color.red);
+            }
+
+            if (result == ShotResult.Miss)
+            {
+                // Промах — виходимо з циклу бота, передаємо хід гравцю
+                CurrentState = GameState.PlayerTurn;
+                canShootAgain = false;
+                Debug.Log("Хід перейшов до Гравця");
+            }
+            else
+            {
+                // Влучив або потопив
+                if (PlayerBoard.AreAllShipsSunk())
+                {
+                    IsPlayerWinner = false;
+                    CurrentState = GameState.GameOver;
+                    canShootAgain = false;
+                    Invoke("LoadGameOver", 2f);
                 }
                 else
                 {
-                    UIManager.Instance.ShowMessage("Ворог влучив!", Color.red);
-                    if (PlayerBoard.AreAllShipsSunk())
-                    {
-                        IsPlayerWinner = false;
-                        Invoke("LoadGameOver", 2f);
-                    }
+                    // Чекаємо перед наступним пострілом, щоб гравець встиг побачити результат
+                    yield return new WaitForSeconds(1.5f);
+                    // canShootAgain залишається true, цикл while йде на нове коло
                 }
             }
         }
