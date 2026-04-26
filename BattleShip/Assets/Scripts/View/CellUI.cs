@@ -25,8 +25,10 @@ public class CellUI : MonoBehaviour
 
     private void OnCellClicked()
     {
-        Debug.Log($"Натиснуто клітинку з координатами: X={X}, Y={Y}");
-        // Пізніше тут ми будемо передавати ці координати у TurnController
+        Debug.Log($"Гравець стріляє у клітинку: X={X}, Y={Y}");
+
+        // Викликаємо метод пострілу в GameManager і передаємо координати цієї клітинки
+        GameManager.Instance.ProcessPlayerShot(X, Y);
     }
 
     // Метод для візуального оновлення клітинки
