@@ -7,9 +7,13 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public Board EnemyBoard { get; private set; }
-    public Board PlayerBoard { get; private set; } // Додали логічне поле гравця
+    public Board PlayerBoard { get; private set; }
 
     public GameState CurrentState { get; private set; }
+
+    [Header("UI Полів")]
+    [SerializeField] private BoardUI playerBoardUI; // Пряме посилання на поле гравця
+    [SerializeField] private BoardUI enemyBoardUI;  // Пряме посилання на поле ворога
 
     private void Awake()
     {
@@ -22,35 +26,45 @@ public class GameManager : MonoBehaviour
         EnemyBoard = new Board();
         PlayerBoard = new Board();
 
-        // Ворог розставляє свої кораблі випадково
         EnemyBoard.PlaceAllShipsRandomly();
-
-        // ТИМЧАСОВО: Гравець теж розставляє кораблі автоматично, 
-        // щоб ми могли протестувати стрільбу бота (пізніше зробимо ручну розстановку)
         PlayerBoard.PlaceAllShipsRandomly();
 
-        // Першим ходить гравець
+        // Одразу після розстановки показуємо кораблі гравця на його полі
+        ShowPlayerShips();
+
         CurrentState = GameState.PlayerTurn;
         Debug.Log("Гра почалась! Ваш хід.");
     }
 
+    // Метод, який відкриває кораблі на полі гравця
+    private void ShowPlayerShips()
+    {
+        for (int x = 0; x < 10; x++)
+        {
+            for (int y = 0; y < 10; y++)
+            {
+                if (PlayerBoard.Grid[x, y] == CellState.Occupied)
+                {
+                    playerBoardUI.UpdateCellVisual(x, y, CellState.Occupied);
+                }
+            }
+        }
+    }
+
     public void ProcessPlayerShot(int x, int y)
     {
-        // Якщо зараз не хід гравця або гра закінчилась — ігноруємо кліки по полю
         if (CurrentState != GameState.PlayerTurn) return;
 
         Coordinate target = new Coordinate(x, y);
         ShotResult result = EnemyBoard.ReceiveShot(target);
 
-        // Оновлюємо візуал ворожого поля (те що ми бачимо)
-        UpdateVisualCell(x, y, EnemyBoard.Grid[x, y]);
+        // Оновлюємо візуал ворожого поля через пряме посилання
+        enemyBoardUI.UpdateCellVisual(x, y, EnemyBoard.Grid[x, y]);
 
         if (result == ShotResult.Miss)
         {
-            CurrentState = GameState.EnemyTurn; // Передаємо хід
+            CurrentState = GameState.EnemyTurn;
             Debug.Log("Ви промахнулись. Хід переходить до ворога.");
-
-            // Запускаємо логіку бота з невеликою затримкою
             StartCoroutine(EnemyTurnRoutine());
         }
         else if (EnemyBoard.AreAllShipsSunk())
@@ -64,10 +78,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Логіка ходу комп'ютера
     private IEnumerator EnemyTurnRoutine()
     {
-        // Чекаємо 1 секунду для реалізму
         yield return new WaitForSeconds(1f);
 
         bool validShot = false;
@@ -75,23 +87,20 @@ public class GameManager : MonoBehaviour
 
         while (!validShot && CurrentState == GameState.EnemyTurn)
         {
-            // Бот випадково обирає координати
             int x = random.Next(0, 10);
             int y = random.Next(0, 10);
 
-            // Перевіряємо, чи бот ще НЕ стріляв у цю клітинку (щоб не витрачав хід дарма)
             CellState targetCell = PlayerBoard.Grid[x, y];
             if (targetCell == CellState.Empty || targetCell == CellState.Occupied)
             {
                 validShot = true;
                 Coordinate target = new Coordinate(x, y);
 
-                // Бот стріляе по логічному полю гравця
                 ShotResult result = PlayerBoard.ReceiveShot(target);
-
                 Debug.Log($"Ворог стріляє по координатах X={x}, Y={y}");
 
-                // ЗАМІТКА: Тут пізніше ми додамо оновлення ВІЗУАЛУ поля гравця, коли його створимо
+                // Оновлюємо візуал поля гравця через пряме посилання
+                playerBoardUI.UpdateCellVisual(x, y, PlayerBoard.Grid[x, y]);
 
                 if (result == ShotResult.Miss)
                 {
@@ -106,22 +115,10 @@ public class GameManager : MonoBehaviour
                 else
                 {
                     Debug.Log("Ворог влучив у ваш корабель і стріляє ще раз!");
-
-                    // Бот чекає ще секунду і цикл повторюється (він стріляє знову)
                     yield return new WaitForSeconds(1f);
                     validShot = false;
                 }
             }
-        }
-    }
-
-    private void UpdateVisualCell(int x, int y, CellState newState)
-    {
-        GameObject cellObj = GameObject.Find($"Cell_X{x}_Y{y}");
-        if (cellObj != null)
-        {
-            CellUI cellUI = cellObj.GetComponent<CellUI>();
-            cellUI.UpdateVisuals(newState);
         }
     }
 }
