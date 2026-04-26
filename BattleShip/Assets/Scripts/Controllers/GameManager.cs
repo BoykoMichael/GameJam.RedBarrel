@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
 
     public GameState CurrentState { get; private set; }
 
+    public static bool IsPlayerWinner;
+
     [Header("UI Полів")]
     [SerializeField] private BoardUI playerBoardUI; // Пряме посилання на поле гравця
     [SerializeField] private BoardUI enemyBoardUI;  // Пряме посилання на поле ворога
@@ -65,12 +67,22 @@ public class GameManager : MonoBehaviour
         {
             CurrentState = GameState.EnemyTurn;
             Debug.Log("Ви промахнулись. Хід переходить до ворога.");
+            UIManager.Instance.ShowMessage("Мимо!", Color.white);
             StartCoroutine(EnemyTurnRoutine());
         }
-        else if (EnemyBoard.AreAllShipsSunk())
+        else if (result == ShotResult.Hit)
         {
-            CurrentState = GameState.GameOver;
-            Debug.Log("ВИ ПЕРЕМОГЛИ! Всі кораблі ворога знищено.");
+            UIManager.Instance.ShowMessage("Попав! Стріляйте ще", Color.yellow);
+            Debug.Log("Ви влучили! Стріляйте ще раз.");
+        }
+        else if (result == ShotResult.Destroyed)
+        {
+            UIManager.Instance.ShowMessage("Потопив!", Color.red);
+            if (EnemyBoard.AreAllShipsSunk())
+            {
+                IsPlayerWinner = true;
+                Invoke("LoadGameOver", 2f); // Завантаження через 2 секунди
+            }
         }
         else
         {
@@ -104,21 +116,25 @@ public class GameManager : MonoBehaviour
 
                 if (result == ShotResult.Miss)
                 {
+                    UIManager.Instance.ShowMessage("Ворог промахнувся!", Color.white);
                     CurrentState = GameState.PlayerTurn;
                     Debug.Log("Ворог промахнувся. Ваш хід!");
                 }
-                else if (PlayerBoard.AreAllShipsSunk())
-                {
-                    CurrentState = GameState.GameOver;
-                    Debug.Log("ВИ ПРОГРАЛИ! Ворог знищив усі ваші кораблі.");
-                }
                 else
                 {
-                    Debug.Log("Ворог влучив у ваш корабель і стріляє ще раз!");
-                    yield return new WaitForSeconds(1f);
-                    validShot = false;
+                    UIManager.Instance.ShowMessage("Ворог влучив!", Color.red);
+                    if (PlayerBoard.AreAllShipsSunk())
+                    {
+                        IsPlayerWinner = false;
+                        Invoke("LoadGameOver", 2f);
+                    }
                 }
             }
         }
+    }
+
+    private void LoadGameOver()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("GameOverScene");
     }
 }
