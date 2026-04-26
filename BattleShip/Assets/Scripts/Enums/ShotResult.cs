@@ -1,6 +1,8 @@
 using UnityEngine;
 
-public class ShotResult
+public enum ShotResult
 {
-    
+    Miss,     // Промах
+    Hit,      // Попав
+    Destroyed // Потопив
 }
